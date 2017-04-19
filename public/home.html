@@ -1,0 +1,46 @@
+<div ng-hide="currentUser" class="row jumbotron img img-responsive" style="background:transparent;background-image: url('back.jpg');background-repeat:no-repeat;background-size:contain;background-position:center;background-color:#aadcff;margin-top:-20px;margin-bottom:-60px" >
+    <br><br><br><br><br><br>
+    <center>
+        <div class="col=xs=12">
+            <b style="color:#44b4cd;font-size:23px;margin-top:30px;text-align:center;margin-left:5px;margin-bottom:-100px">Share as well as get information</b>
+            <br>
+            <img class="img im-responsive" style="height:200px;width:400px" src="logo2.png">
+        </div>
+    </center>
+    <div class="col-xs-12">
+        <a href="#signin">
+            <center style="color:#528cea; font-size:18px">
+                <b>Sign in to create and view posts</b>
+            </center>
+        </a>
+    </div>
+    <br><br><br><br><br><br><br><br>
+</div>
+
+<div ng-hide="!currentUser" class="container">
+    <br>
+    <div class="col-xs-12">
+        <b style="font-size:20px; padding-left:12px; padding-top:10px">Posts</b>
+        <button class="btn btn-warning pull-right" style="margin-top:-12px" ng-click="logout()"><b>Sign Out</b></button>
+        <br>
+        <hr style="margin-top:-1px">
+        <br>
+        <div class="col-xs-12">
+            <div class="new-feed">
+                <input type="text" class="form-control" placeholder="What do you have to post today!" ng-model="newFeed">
+                <button class="btn btn-primary" type="button" style="margin-top:10px;" ng-click="submitNewFeed()"><b><span class="glyphicon glyphicon-pencil"></span> <span style="padding-left:2px">Post</span></b></button>
+            </div>
+            <hr>
+            <br>
+            <div>
+                <h4 class="myPost" ng-repeat="feed in posts" style="font-size:20px">
+                {{feed.text}}
+                <a href ng-click="removeFeed(feed)"><span class="glyphicon glyphicon-remove" style="font-size:15px"></span></a>
+                <br>
+                <small>{{ feed.username }}</small>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+

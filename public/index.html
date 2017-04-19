@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html ng-app="sgsitian">
+    <head>
+        <title>SGSITIAN</title>
+        <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
+        <link rel="stylesheet" type="text/css" href="bootstrap/css/style.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-cookies.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script>
+            
+            var app = angular.module('sgsitian',['ngRoute', 'ngCookies']);
+            
+            app.config(function($routeProvider, $locationProvider) {
+                $routeProvider
+                .when('/', {
+                    templateUrl: 'home.html',
+                    controller: 'sgsitianHomeCtrl',
+                    title: 'Home'
+                })
+                .when('/signup', {
+                    templateUrl: 'signup.html',
+                    controller: 'sgsitianSignupController',
+                    title: 'Signup'
+                })
+                .when('/about', {
+                    templateUrl: 'about.html',
+                    controller: 'sgsitianAboutController',
+                    title: 'About'
+                })
+                .when('/guide', {
+                    templateUrl: 'guide.html',
+                    controller: 'sgsitianGuideController',
+                    title: 'Guide'
+                })
+                .when('/signin', {
+                    templateUrl: 'signin.html',
+                    controller: 'sgsitianSigninController',
+                    title: 'Sign in'
+                })
+                .when('/contact', {
+                    templateUrl: 'contact.html',
+                    controller: 'sgsitianContactController',
+                    title: 'Contact'
+                }); 
+            });
+            
+            
+            /* Application running */
+            app.run(function($rootScope, $cookies) {
+                if($cookies.get('token') && $cookies.get('currentUser')) {
+                    $rootScope.token = $cookies.get('token');
+                    $rootScope.currentUser = $cookies.get('currentUser');
+                }
+            });
+            
+            /* Home controller */
+            app.controller('sgsitianHomeCtrl', function($rootScope, $scope, $http, $cookies) {
+                
+                $scope.submitNewFeed = function() {
+                    $http.post('/sgsitian', 
+                               {newFeed: $scope.newFeed}, {headers: {
+                                   'authorization': $rootScope.token}}).then(function() {
+                        $scope.newFeed='';
+                        getFeeds();
+                    });
+                };
+                
+                $scope.removeFeed = function(feed) {
+                    $http.put('/sgsitian/remove', 
+                              {feed: feed}, 
+                              {headers: {
+                                   'authorization': $rootScope.token}}).then(function() {
+                        getFeeds();
+                    });
+                };
+                
+                $scope.signin = function() {
+                    $http.put('/users/signin', {username: $scope.username, password: $scope.password})
+                    .then(function(res) {
+                        //console.log(res.data.token);
+                        $cookies.put('token', res.data.token);
+                        $cookies.put('currentUser', $scope.username);
+                        $rootScope.token = res.data.token;
+                        $rootScope.currentUser = $scope.username;
+                        
+                        //alert('Successfully signed in'); 
+                    }, function(err) {
+                        alert('bad login credentials');
+                    });
+                };
+                
+                $scope.logout = function() {
+                    $cookies.remove('token');
+                    $cookies.remove('currentUser');
+                    $rootScope.token = null;
+                    $rootScope.currentUser = null;
+                    
+                };
+                
+                function getFeeds() {
+                    $http.get('/sgsitian/').success(function(response){
+                    $scope.posts = response; 
+                    });
+                }
+                
+                
+                
+                getFeeds();
+            });
+            
+             /* Signup Controller */        
+             app.controller('sgsitianSignupController', function($scope, $http, $window) {
+                 
+                 $scope.username = '';
+                 $scope.password = '';
+                 $scope.errorMessage = '';
+                 $scope.userList;
+                 $scope.valid = 1;
+                 $scope.alreadyExist = 0;
+                 $scope.len = 0;
+                 $scope.x;
+                 $scope.fullName='';
+                 //$scope.department='';
+                 //$scope.profession='';
+                 
+                 var usersList, len, x;
+                 
+                 function getUsersList() { 
+                    $http.get('/usersList/').success(function(response){
+                    $scope.usersList = angular.fromJson(response); 
+                    $scope.len = usersList.length;    
+                    //console.log(usersList);
+                    });
+                 }
+                 
+                 $scope.submitSignup = function() {
+                    
+                    $scope.valid = 1;
+                    
+                    if($scope.username == '' && $scope.password != '' && $scope.fullName != '')
+                    {
+                        $scope.errorMessage = 'Username field cannot be empty';
+                        $scope.password = '';
+                        $scope.fullName = '';
+                        $scope.valid = 0;
+                        return;
+                    }
+                    else if($scope.username != '' && $scope.password == '' && $scope.fullName != '')
+                    {
+                        $scope.errorMessage = 'Password field cannot be empty';
+                        $scope.username = '';
+                        $scope.fullName = '';
+                        $scope.valid = 0;
+                        return;
+                    }
+                    else if($scope.username != '' && $scope.password != '' && $scope.fullName =='')
+                    {
+                        $scope.errorMessage = 'Name field cannot be empty';
+                        $scope.username = '';
+                        $scope.password = '';
+                        $scope.valid = 0;
+                        return;
+                    }
+                    else if($scope.username != '' && $scope.password == '' && $scope.fullName == '')
+                    {
+                        $scope.errorMessage = 'Both Password and Name field cannot be empty';
+                        $scope.username = '';
+                        $scope.password = '';
+                        $scope.valid = 0;
+                        return;
+                    } 
+                    else if($scope.username == '' && $scope.password == '' && $scope.fullName != '') 
+                    {
+                        $scope.errorMessage = 'Both Username and Password field cannot be empty';
+                        $scope.password = '';
+                        $scope.username = '';
+                        $scope.fullName = '';
+                        $scope.valid = 0;
+                        return;
+                    }
+                    else if($scope.username == '' && $scope.password != '' && $scope.fullName == '')
+                    {
+                        $scope.errorMessage = 'Both Username and Name field cannot be empty';
+                        $scope.username = '';
+                        $scope.password = '';
+                        $scope.valid = 0;
+                        return;
+                    } 
+                    else if($scope.username == '' && $scope.password == '' && $scope.fullName == '')
+                    {
+                        $scope.errorMessage = 'All fields are empty';
+                        $scope.username = '';
+                        $scope.password = '';
+                        $scope.valid = 0;
+                        return;
+                    } 
+                     
+                    if($scope.valid)
+                    {
+                         /*for($scope.x=0; $scope.x<$scope.len; $scope.x++) {
+                             if($scope.username == $scope.usersList[x].username) {
+                                $scope.alreadyExist = 1;
+                                $scope.errorMessage = 'Username already exists';
+                                $scope.username = '';
+                                $scope.password = ''; 
+                                $scope.alreadyExist = 0;
+                                return;
+                            }
+                         }*/
+                         
+                         var newUser = {
+                             username: $scope.username,
+                             password: $scope.password,
+                             fullName: $scope.fullName,
+                             //department: $scope.department,
+                             //profession: $scope.profession
+                         };
+                         $http.post('/users', newUser).then(function() {
+                             //alert('success');
+                             $window.location.href = '/#/signin';
+                         });
+                     }
+                 }
+                 
+             });
+            
+            /* Signin Controller */
+            app.controller('sgsitianSigninController', function($rootScope, $scope, $http, $cookies, $timeout, $window) {
+                
+                $scope.username = '';
+                $scope.password = '';
+                $scope.errorMessage = '';
+                $scope.fullName='';
+                //$scope.department='';
+                //$scope.profession='';
+                
+                
+                //var usersList, len;
+                
+                $scope.signin = function() {
+                    
+                    /*var validUsername = 0;
+                    var currentUsername = $scope.username;
+                    var x;
+                    
+                    getUsersList();
+                    
+                    for(x=0; x<len; x++) {
+                        if($scope.username == usersList[x].username)
+                        {
+                            validUsername=1;
+                            $scope.errorMessage = 'Incorrect username and password combination';
+                            return;
+                        }
+                    }*/
+                    
+                    if($scope.username == '' && $scope.password != '')
+                    {
+                        $scope.errorMessage = 'Username field cannot be empty';
+                        $scope.password = '';
+                        return;
+                    }
+                    else if($scope.username != '' && $scope.password == '')
+                    {
+                        $scope.errorMessage = 'Password field cannot be empty';
+                        $scope.username = '';
+                        return;
+                    }
+                    else if($scope.username == '' && $scope.password == '')
+                    {
+                        $scope.errorMessage = 'Both Username and Password field cannot be empty';
+                        $scope.password = '';
+                        $scope.username = '';
+                        return;
+                    }
+                    
+                    $http.put('/users/signin', {username: $scope.username, password: $scope.password})
+                    .then(function(res) {
+                        //console.log(res.data.token);
+                        $cookies.put('token', res.data.token);
+                        $cookies.put('currentUser', $scope.username);
+                        $rootScope.token = res.data.token;
+                        $rootScope.currentUser = $scope.username;
+                        
+                        //alert('Successfully signed in'); 
+                    }, function(err) {
+                        $scope.errorMessage = 'Incorrect combination of username and password';
+                        return;
+                    });
+                    
+                };
+                
+                
+                $scope.logout = function() {
+                    $cookies.remove('token');
+                    $cookies.remove('currentUser');
+                    $rootScope.token = null;
+                    $rootScope.currentUser = null;
+                   
+                    
+                    $scope.username = '';
+                    $scope.password = '';
+                    $scope.errorMessage = '';
+                };
+                
+            });
+            
+            
+            /* About Controller */
+            app.controller('sgsitianAboutController', function($rootScope, $scope, $http, $window, $cookies) {
+                
+                $scope.logout = function() {
+                    $cookies.remove('token');
+                    $cookies.remove('currentUser');
+                    $rootScope.token = null;
+                    $rootScope.currentUser = null;
+                    
+                };
+                
+            });
+            
+            /* Contact Controller */
+            app.controller('sgsitianContactController', function($rootScope, $scope, $http, $window, $cookies) {
+                
+                $scope.logout = function() {
+                    $cookies.remove('token');
+                    $cookies.remove('currentUser');
+                    $rootScope.token = null;
+                    $rootScope.currentUser = null;
+                    
+                };
+                
+            });
+            
+            
+            /* Guide Controller */
+            app.controller('sgsitianGuideController', function($rootScope, $scope, $http, $window, $cookies) {
+                
+                $scope.logout = function() {
+                    $cookies.remove('token');
+                    $cookies.remove('currentUser');
+                    $rootScope.token = null;
+                    $rootScope.currentUser = null;
+                    
+                };
+                
+            });
+            
+        </script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default responsive" role="navigation" style="padding:5px" id="one">
+            <div class="row">
+                <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#/"><span style="color:white;padding:0px 0px 0px 10px"><b style="font-size:24px;font-family:Courier"><img src="logo.Ix8D41kNix0=" class="img img-responsive" style="height:35px;position:absolute;margin-top:-25px"><span style="padding-left:40px;position:absolute;">SGSITIAN</span></b></span></a>
+                    <span>
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar" id="toggleBtn">
+                            <span class="sr-only">Toggle Navigation</span>
+                            <span style="background:white" class="icon-bar"></span>
+                            <span style="background:white" class="icon-bar"></span>
+                            <span style="background:white" class="icon-bar"></span>
+                        </button>
+                    </span>
+                </div>  
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right" id="navbar" style="color:white">
+                        <li><a href="#/" style="color:white" id="el1" class="highlight"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+                        <li><a href="#about" style="color:white" id="el2"><span class="glyphicon glyphicon-info-sign"></span> About</a></li>
+                        <li><a href="#guide" style="color:white" id="el3"><span class="glyphicon glyphicon-screenshot"></span> Guide</a></li>
+                        <li><a href="#contact" style="color:white" id="el4"><span class="glyphicon glyphicon-earphone"></span> Contact</a></li>
+                        <li><a href="#signin" style="color:white" id="el5"><span class="glyphicon glyphicon-user"></span> Sign in</a></li>
+                    </ul>
+                </div>
+            </div>
+            </div>
+        </nav>
+        <div ng-view class="row"></div>
+        
+        <script>
+            $(document).ready(function(){
+                $(function() {
+                $('#navbar li a').click(function() {
+                   $('#navbar li a').removeClass();
+                   $(this).addClass('highlight');
+                });
+             });
+            }); 
+        </script>
+        
+    </body>
+</html>

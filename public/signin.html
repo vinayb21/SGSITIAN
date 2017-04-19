@@ -1,0 +1,55 @@
+<center>
+    <div ng-hide="currentUser">
+        <br>
+        <br>
+        <br>
+        <h2>Sign In</h2>
+        <br>
+        <form>
+            <input type="text" size="32" placeholder=" Username" ng-model="username" required>
+            <br><br>
+            <input type="password" size="32" placeholder=" Password" ng-model="password" required>
+            <br><br>
+            <button class="btn btn-primary" ng-click="signin()">Sign In</button>
+            <br><span><b>{{ errorMessage }}</b></span><br>
+        </form>
+        <a href='#/signup' style="margin-top:50px">Not a member? Signup</a>
+        <br>
+    </div>
+</center>
+<div ng-show="currentUser">
+    <div class="container">
+        <div class="col-xs-9">
+            <h3 style="font-weight:400">Hello {{ currentUser }}</h3>
+        </div>
+        <div class="col-xs-3">
+            <br>
+            <button class="btn btn-warning pull-right" style="margin-top:-12px" ng-click="logout()"><b>Sign Out</b></button>
+        </div>
+        <br>
+        <br>
+        <hr>
+    </div>
+    <div class="container">
+        <b style="font-size:20px; padding-left:12px">Personal Information</b>
+        <br><br>
+        <div class="jumbotron" style="border:2px solid grey; background:transparent !important">
+            <b style="font-size:17px">Username:</b> <span style="font-size:17px;padding-left:28px">{{ currentUser }}</span>
+            <br><br>
+            <b style="font-size:17px">Department:</b> <span style="font-size:17px;padding-left:17px">Information Technology</span>
+            <br><br>
+            <b style="font-size:17px">Profession:</b> <span style="font-size:17px;padding-left:20px">Student</span>
+            <br><br>
+            <b style="font-size:17px">Institute:</b> <span style="font-size:17px;padding-left:41px">SGSITS, Indore</span>
+            <br><br>
+            <span style="color:grey">*Contact admin in order to change details. Visit contact page for details.</span>
+        </div>
+        <hr>
+    </div>
+    <div class="container">
+        <b style="font-size:20px; padding-left:12px">View Posts</b>
+        <br><br>
+        <a href="#/" style="padding-left:10px"><button class="btn btn-success"><b>View Posts</b></button></a>
+    </div>
+</div>
+

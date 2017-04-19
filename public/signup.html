@@ -1,0 +1,16 @@
+<center>
+    <br><br><br>
+    <h2>Signup</h2>
+    <br>
+    <form>
+    <input type="text" placeholder=" Username" ng-model="username" size="30" required>
+    <br><br>
+    <input type="password" placeholder=" Password" ng-model="password" size="30" required>
+    <br><br>
+    <input type="text" placeholder=" Name" ng-model="fullName" size="30" required>
+    <br><br>
+    <button class="btn btn-primary" ng-click="submitSignup()">Signup</button>
+    <br><br>
+    </form>
+    <span><b>{{ errorMessage }}</b></span>
+</center>
