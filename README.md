@@ -23,4 +23,8 @@ node server
 
 3. In the browser, set the url - localhost:3000
 
+# Home page
+
+![Alt text](/relative/public/homeWOSignin.png?raw=true "Optional Title")
+
 
