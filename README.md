@@ -25,6 +25,6 @@ node server
 
 # Home page
 
-![Alt text](/relative/public/homeWOSignin.png?raw=true "Optional Title")
+![Alt text](/public/homeWOSignin.png?raw=true "Optional Title")
 
 
