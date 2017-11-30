@@ -13,7 +13,7 @@ var JWT_SECRET = 'sgsitian';
 var db = null;
 var url = 'mongodb://localhost:27017/sgsitian';
 
-MongoClient.connect(url, function(err, dbconn) {
+MongoClient.connect(process.env.MONGOLAB_URI || url, function(err, dbconn) {
   assert.equal(null, err);
   console.log("Connected correctly to server.");
   db = dbconn;
@@ -149,6 +149,6 @@ app.put('/users/signin', function(req, res, next) {
     
 });
 
-app.listen(3000, function() {
+app.listen(process.env.PORT, function() {
     console.log('sample');
 });
